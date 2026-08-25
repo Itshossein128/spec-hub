@@ -10,7 +10,10 @@ export const AcceptanceCriterionSchema = z.object({
 export const SpecFormSchema = z.object({
   taskId: z
     .string()
-    .regex(/^TSK-[\w-]+$/i, 'task_id must look like "TSK-2026-08"')
+    .regex(
+      /^(?:TSK-[\w-]+)?$/i,
+      'task_id must look like "TSK-2026-08" (or leave empty)',
+    )
     .optional(),
   shelfId: z.number().int().positive().optional(),
   bookId: z.number().int().positive().optional(),

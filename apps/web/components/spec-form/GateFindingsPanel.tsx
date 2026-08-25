@@ -39,6 +39,12 @@ export function GateFindingsPanel({
         >
           <p className='font-semibold tracking-wide'>
             {severityLabel[f.severity]} · {f.code}
+            {f.source ? (
+              <span className='font-normal opacity-80' dir='ltr'>
+                {" "}
+                · {f.source}
+              </span>
+            ) : null}
             {f.field ? (
               <span className='font-normal opacity-80' dir='ltr'>
                 {" "}

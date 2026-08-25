@@ -36,6 +36,7 @@ export type BookStackPage = {
   name: string;
   slug: string;
   book_id: number;
+  book_slug?: string;
   chapter_id?: number;
   markdown?: string;
 };
@@ -45,6 +46,7 @@ export type BookStackPageSummary = {
   name: string;
   slug: string;
   book_id: number;
+  book_slug?: string;
   chapter_id: number;
 };
 
@@ -217,12 +219,33 @@ export class BookStackClient {
   }
 
   pageUrl(page: BookStackPage): string {
-    return `${this.config.baseUrl}/books/${page.book_id}/page/${page.slug}`;
+    // BookStack web routes use book *slug*, not numeric book_id.
+    // `/books/{id}/page/{slug}` 404s; `/books/{book_slug}/page/{slug}` works.
+    if (page.book_slug && page.slug) {
+      return `${this.config.baseUrl}/books/${page.book_slug}/page/${page.slug}`;
+    }
+    return this.entityLink(page.id);
   }
 
-  /** BookStack universal entity link (works for pages/chapters/books). */
+  /** Stable BookStack redirect that resolves to the canonical entity URL. */
   entityLink(id: number): string {
     return `${this.config.baseUrl}/link/${id}`;
+  }
+
+  /** Canonical web URL for a page (resolves book slug when API omits book_slug). */
+  async resolvePageUrl(page: BookStackPage): Promise<string> {
+    if (page.book_slug && page.slug) return this.pageUrl(page);
+    if (page.slug && page.book_id) {
+      try {
+        const book = await this.getBook(page.book_id);
+        if (book.slug) {
+          return this.pageUrl({ ...page, book_slug: book.slug });
+        }
+      } catch {
+        // fall through to entity link
+      }
+    }
+    return this.entityLink(page.id);
   }
 }
 

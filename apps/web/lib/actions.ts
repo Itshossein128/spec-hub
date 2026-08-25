@@ -254,6 +254,10 @@ export type EvaluateGateInput = {
   status: SpecStatus;
   /** Extra publishes from the current form (self-publish before save). */
   selfPublishes?: string[];
+  /** Run Codex CLI audit (default true for validate). */
+  runCodexAudit?: boolean;
+  /** Soften Codex unavailable to warning (default true for validate). */
+  softCodexFailure?: boolean;
 };
 
 export async function evaluateGateAction(
@@ -264,7 +268,11 @@ export async function evaluateGateAction(
   for (const id of input.selfPublishes ?? input.data.publishes ?? []) {
     publishes.add(id);
   }
-  return evaluateSpecGate(input.data, input.status, { publishes });
+  return evaluateSpecGate(input.data, input.status, {
+    catalog: { publishes },
+    runCodexAudit: input.runCodexAudit ?? true,
+    softCodexFailure: input.softCodexFailure ?? true,
+  });
 }
 
 export type PublishResult =
@@ -297,10 +305,13 @@ export async function publishSpecAction(input: {
   }
 
   const data = parsed.data;
+  const runCodex = input.status === "Ready-For-Agent";
   const gate = await evaluateGateAction({
     data,
     status: input.status,
     selfPublishes: data.publishes,
+    runCodexAudit: runCodex,
+    softCodexFailure: false,
   });
 
   if (!gate.ok) {
@@ -366,7 +377,7 @@ export async function publishSpecAction(input: {
     return {
       ok: true,
       pageId: page.id,
-      url: client.pageUrl(page),
+      url: await client.resolvePageUrl(page),
       markdown,
       gate,
       taskId,

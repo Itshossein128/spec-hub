@@ -22,6 +22,7 @@
     "@spec-hub/shared-schemas": "workspace:*"
   },
   "devDependencies": {
+    "@types/node": "^20.19.43",
     "typescript": "^5"
   }
 }

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import {
+  analyzeSpecification,
   assertConsumesResolved,
   assertHierarchyPlacement,
 } from "@spec-hub/codex-gate";
@@ -92,6 +93,43 @@ export function registerCreatePageTool(server: McpServer): void {
             ],
             isError: true,
           };
+        }
+
+        if (fm.status === "Ready-For-Agent" || fm.status === "Done") {
+          const relatedContext = [
+            `### Placement`,
+            `- shelf: ${fm.shelf}`,
+            `- book: ${fm.book}`,
+            `- chapter: ${fm.chapter ?? "(none)"}`,
+            "",
+            "### Publishes catalog",
+            ...[...catalog].slice(0, 40).map((id) => `- ${id}`),
+          ].join("\n");
+          const codex = await analyzeSpecification({
+            markdown: args.markdown_content,
+            relatedContext,
+            status: fm.status,
+            unavailableSeverity: "error",
+          });
+          if (!codex.ok) {
+            return {
+              content: [
+                {
+                  type: "text" as const,
+                  text: JSON.stringify(
+                    {
+                      status: "rejected",
+                      reason: "codex_audit",
+                      findings: codex.findings,
+                    },
+                    null,
+                    2,
+                  ),
+                },
+              ],
+              isError: true,
+            };
+          }
         }
       }
 

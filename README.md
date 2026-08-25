@@ -66,5 +66,5 @@ Without tokens, `pnpm bookstack:sync` uses offline fixtures under `packages/book
 | `apps/web`                 | `@spec-hub/web`             | Spec form portal                              |
 | `apps/mcp-server`          | `@spec-hub/mcp-server`      | BookStack + graph MCP tools/resources         |
 | `packages/shared-schemas`  | `@spec-hub/shared-schemas`  | `SpecFormSchema`, Agent-Ready Markdown        |
-| `packages/codex-gate`      | `@spec-hub/codex-gate`      | Local quality gate + `assertConsumesResolved` |
+| `packages/codex-gate`      | `@spec-hub/codex-gate`      | Local + Codex CLI quality gate (`assertConsumesResolved`, `analyzeSpecification`) |
 | `packages/bookstack-graph` | `@spec-hub/bookstack-graph` | Sync / enrich / graph_query / graph_path      |

@@ -189,25 +189,47 @@ export function SpecAuthoringWorkspace({
     setStatus(nextStatus);
     setPublishMessage(null);
     setPublishUrl(null);
-    handleSubmit((data: SpecFormData) => {
-      startTransition(async () => {
-        const result = await publishSpecAction({
-          data,
-          status: nextStatus,
-          pageId,
+    handleSubmit(
+      (data: SpecFormData) => {
+        startTransition(async () => {
+          const result = await publishSpecAction({
+            data,
+            status: nextStatus,
+            pageId,
+          });
+          if (result.gate) setFindings(result.gate.findings);
+          if (!result.ok) {
+            setPublishMessage(result.error);
+            return;
+          }
+          setPageId(result.pageId);
+          setPublishUrl(result.url);
+          setPublishMessage(
+            `به‌عنوان «${STATUS_FA[nextStatus]}» منتشر شد (${result.taskId}). وقتی آماده بودید با pnpm bookstack:graph گراف را بازسازی کنید.`,
+          );
         });
-        if (result.gate) setFindings(result.gate.findings);
-        if (!result.ok) {
-          setPublishMessage(result.error);
-          return;
-        }
-        setPageId(result.pageId);
-        setPublishUrl(result.url);
+      },
+      (formErrors) => {
+        const parts: string[] = [];
+        const walk = (obj: unknown, prefix = ""): void => {
+          if (!obj || typeof obj !== "object") return;
+          for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+            const path = prefix ? `${prefix}.${k}` : k;
+            if (v && typeof v === "object" && "message" in v && v.message) {
+              parts.push(`${path}: ${String(v.message)}`);
+            } else {
+              walk(v, path);
+            }
+          }
+        };
+        walk(formErrors);
         setPublishMessage(
-          `به‌عنوان «${STATUS_FA[nextStatus]}» منتشر شد (${result.taskId}). وقتی آماده بودید با pnpm bookstack:graph گراف را بازسازی کنید.`,
+          parts.length
+            ? parts.slice(0, 3).join(" · ")
+            : "فرم نامعتبر است؛ فیلدهای علامت‌خورده را اصلاح کنید.",
         );
-      });
-    })();
+      },
+    )();
   };
 
   return (
@@ -764,6 +786,12 @@ export function SpecAuthoringWorkspace({
               انتشار آماده برای ایجنت
             </button>
           </div>
+          {pending ? (
+            <p className='text-sm text-muted'>
+              در حال اجرای دروازه کیفیت (اعتبارسنجی/آماده برای ایجنت شامل Codex
+              CLI است و ممکن است طول بکشد)…
+            </p>
+          ) : null}
           {publishMessage ? (
             <p className='text-sm text-muted'>{publishMessage}</p>
           ) : null}

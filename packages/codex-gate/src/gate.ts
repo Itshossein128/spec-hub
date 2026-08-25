@@ -12,6 +12,8 @@ export type GateFinding = {
   severity: "error" | "warning" | "info";
   message: string;
   field?: keyof SpecFormData | string;
+  /** Which layer produced the finding. */
+  source?: "local" | "codex";
 };
 
 export type GateResult = {
@@ -78,6 +80,7 @@ export function assertConsumesResolved(
         ? `consumes "${id}" has no matching publishes in catalog (status ${status})`
         : `consumes "${id}" is unresolved; allowed as warning while status is ${status}`,
       field: "consumes",
+      source: "local",
     });
   }
 
@@ -123,6 +126,7 @@ export function runLocalQualityGate(data: SpecFormData): GateResult {
       severity: "error",
       message: `allowedPaths overlaps protectedPaths: ${overlap.join(", ")}`,
       field: "protectedPaths",
+      source: "local",
     });
   }
 
@@ -132,6 +136,7 @@ export function runLocalQualityGate(data: SpecFormData): GateResult {
       severity: "warning",
       message: "dataContracts is empty; agents may invent interfaces.",
       field: "dataContracts",
+      source: "local",
     });
   }
 
@@ -141,12 +146,43 @@ export function runLocalQualityGate(data: SpecFormData): GateResult {
   };
 }
 
+export type AnalyzeSpecificationInput = {
+  markdown: string;
+  relatedContext?: string;
+  status: string;
+  /** Soften CODEX_UNAVAILABLE to warning (validate) vs error (Ready publish). */
+  unavailableSeverity?: "error" | "warning";
+  /** Working directory for `codex exec -C`. */
+  cwd?: string;
+};
+
 /**
- * Placeholder for Codex CLI multi-turn audit (SPEC §3.3).
- * Not implemented in the scaffold — returns local gate only.
+ * Codex CLI multi-turn audit (SPEC §3.3 / Milestone 2).
+ * Requires `codex` on PATH (or CODEX_BIN).
  */
 export async function analyzeSpecification(
-  data: SpecFormData,
+  input: AnalyzeSpecificationInput,
 ): Promise<GateResult> {
-  return runLocalQualityGate(data);
+  const { runCodexSpecAudit } = await import("./codexBridge.js");
+  const result = await runCodexSpecAudit(
+    {
+      markdown: input.markdown,
+      relatedContext: input.relatedContext ?? "",
+      status: input.status,
+    },
+    { cwd: input.cwd },
+  );
+
+  if (input.unavailableSeverity === "warning") {
+    return {
+      ok: true,
+      findings: result.findings.map((f) =>
+        f.code === "CODEX_UNAVAILABLE" || f.code === "CODEX_PARSE_ERROR"
+          ? { ...f, severity: "warning" as const }
+          : f,
+      ),
+    };
+  }
+
+  return result;
 }

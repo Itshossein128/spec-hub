@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CodexSpecGateFindings",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ok", "findings"],
+  "properties": {
+    "ok": {
+      "type": "boolean",
+      "description": "true if no error-severity findings"
+    },
+    "summary": {
+      "type": "string",
+      "description": "One-sentence overall verdict for humans"
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "severity", "message"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Stable machine code, e.g. AMBIGUOUS_GOAL, SCOPE_MISMATCH"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["error", "warning", "info"]
+          },
+          "message": {
+            "type": "string",
+            "description": "Actionable finding for the author"
+          },
+          "field": {
+            "type": "string",
+            "description": "Optional form/frontmatter field name"
+          }
+        }
+      }
+    }
+  }
+}

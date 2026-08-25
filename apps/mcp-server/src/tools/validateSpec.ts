@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import {
+  analyzeSpecification,
   assertConsumesResolved,
   assertHierarchyPlacement,
 } from "@spec-hub/codex-gate";
@@ -13,15 +14,16 @@ import {
   hasBookStackConfig,
 } from "../bookstack/index.js";
 
-/** SPEC §3.2 — bookstack_validate_spec (+ consume integrity + hierarchy). */
+/** SPEC §3.2 — bookstack_validate_spec (+ hierarchy + consume + Codex). */
 export function registerValidateSpecTool(server: McpServer): void {
   server.tool(
     "bookstack_validate_spec",
-    "Validate Agent-Ready structure, hierarchy placement, and publish-before-consume integrity",
+    "Validate Agent-Ready structure, hierarchy, consume integrity, and Codex CLI review",
     {
       page_id: z.number().int().positive().optional(),
       markdown: z.string().min(1).optional(),
       publishes_catalog: z.array(z.string()).optional(),
+      run_codex: z.boolean().default(true),
     },
     async (args) => {
       let markdown = args.markdown;
@@ -105,6 +107,31 @@ export function registerValidateSpecTool(server: McpServer): void {
       });
 
       const findings = [...hierarchy.findings, ...gate.findings];
+      const localOk = findings.every((f) => f.severity !== "error");
+
+      if (args.run_codex !== false) {
+        const relatedContext = [
+          `### Placement`,
+          `- shelf: ${fm.shelf}`,
+          `- book: ${fm.book}`,
+          `- chapter: ${fm.chapter ?? "(none)"}`,
+          `- status: ${fm.status}`,
+          "",
+          "### Publishes catalog",
+          ...[...catalogPublishes].slice(0, 40).map((id) => `- ${id}`),
+        ].join("\n");
+
+        const soft =
+          fm.status !== "Ready-For-Agent" && fm.status !== "Done";
+        const codex = await analyzeSpecification({
+          markdown,
+          relatedContext,
+          status: fm.status,
+          unavailableSeverity: soft ? "warning" : "error",
+        });
+        findings.push(...codex.findings);
+      }
+
       const ok = findings.every((f) => f.severity !== "error");
 
       return {
@@ -114,6 +141,7 @@ export function registerValidateSpecTool(server: McpServer): void {
             text: JSON.stringify(
               {
                 ok,
+                localOk,
                 frontmatter: fm,
                 findings,
               },

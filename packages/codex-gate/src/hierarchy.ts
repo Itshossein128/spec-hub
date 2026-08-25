@@ -56,6 +56,7 @@ export function assertHierarchyPlacement(
       message:
         "Shelf (macro domain / application) is required — e.g. Fleet Management.",
       field: "shelf",
+      source: "local",
     });
   }
 
@@ -66,6 +67,7 @@ export function assertHierarchyPlacement(
       message:
         "Book (microservice / micro-frontend) is required — one deployable unit.",
       field: "book",
+      source: "local",
     });
   }
 
@@ -78,6 +80,7 @@ export function assertHierarchyPlacement(
       message:
         "Ready-For-Agent specs must target a Chapter (module / business entity), not only Book root.",
       field: "chapter",
+      source: "local",
     });
   } else if (!hasChapter) {
     findings.push({
@@ -86,6 +89,7 @@ export function assertHierarchyPlacement(
       message:
         "Prefer a Chapter (module/entity) so Book Index and Chapter Index stay navigable.",
       field: "chapter",
+      source: "local",
     });
   }
 
@@ -96,6 +100,7 @@ export function assertHierarchyPlacement(
       message:
         "Select or create the Book in BookStack (bookId) before Ready-For-Agent publish.",
       field: "bookId",
+      source: "local",
     });
   }
 
