@@ -1,0 +1,33 @@
+---
+description: BookStack DDD hierarchy (Shelf/Book/Chapter/Page) and mandatory Master Index updates
+alwaysApply: true
+---
+
+# BookStack Structural Governance
+
+Whenever analyzing specs, writing BookStack docs via MCP, or creating Shelf/Book/Chapter/Page entities in this monorepo, enforce the following.
+
+## Entity mapping (DDD)
+
+| Entity | Maps to | Rule |
+|--------|---------|------|
+| **Shelf** | Macro domain / application (bounded context) | Groups Books only — no granular task logic |
+| **Book** | Microservice / micro-frontend | Standalone context repo for one deployable unit |
+| **Chapter** | Module / business entity | Groups related tasks and contracts (e.g. Driver, Vehicle) |
+| **Page** | Task / Agent-Ready spec | Must follow `AGENT_SPEC.md` frontmatter + Gherkin |
+
+Examples: Shelf `Fleet Management` → Book `tracking-service` → Chapter `Driver` → Page `Create driver API`.
+
+## Master Index rule
+
+- Every **Book** and **Chapter** MUST have a root page named `Index` (TOC).
+- When creating a **Chapter**, update the parent **Book** `Index` with a link + one-sentence description.
+- When creating a **Page**, update the parent **Chapter** `Index` (or Book `Index` if no chapter) the same way.
+- Never leave a Book/Chapter without this human-curated navigation map — it is the backbone for the knowledge graph and cheap agent retrieval.
+
+## Agent / Codex constraints
+
+- Do not invent shelves/books/chapters that violate the mapping above.
+- Prefer placing Agent-Ready pages under a Chapter (module), not floating at book root, when Ready-For-Agent.
+- After any create of Chapter or Page through tools/portal, ensure Master Index is updated in the same operation.
+- Validate specs with `@spec-hub/shared-schemas` and `@spec-hub/codex-gate` (`assertHierarchyPlacement`, `assertConsumesResolved`).

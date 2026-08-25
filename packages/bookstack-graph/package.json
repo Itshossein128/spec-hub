@@ -1,0 +1,36 @@
+{
+  "name": "@spec-hub/bookstack-graph",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "bookstack-graph": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "echo \"No lint configured\"",
+    "test": "tsx --test src/smoke.test.ts",
+    "sync": "tsx src/cli.ts sync",
+    "graph": "tsx src/cli.ts graph",
+    "graph:update": "tsx src/cli.ts graph --update"
+  },
+  "dependencies": {
+    "@spec-hub/codex-gate": "workspace:*",
+    "@spec-hub/shared-schemas": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "tsx": "^4.19.3",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,55 @@
+---
+description: Enforce Agent-Ready spec structure from AGENT_SPEC.md for all technical specifications
+alwaysApply: true
+---
+
+# Agent-Ready Specification Standard
+
+Whenever a new technical specification, agent-ready doc, BookStack page draft, or task brief is requested, you MUST follow `packages/shared-schemas/templates/AGENT_SPEC.md` exactly.
+
+Also follow `.cursor/rules/bookstack-governance.mdc`: Shelf→domain, Book→microservice, Chapter→module, Page→task; always update the parent **Index** when creating a Chapter or Page.
+
+## Required YAML frontmatter
+
+Include a leading `---` block with all of these fields:
+
+- `task_id` (string, e.g. `TSK-2026-08`)
+- `title`
+- `repo` (primary owning service/repo; preferred)
+- `shelf` (macro domain / application)
+- `book` (microservice / micro-frontend)
+- `chapter` (module / entity — **required** for `Ready-For-Agent` / `Done`)
+- `tags` (non-empty string array)
+- `status` (use `Ready-For-Agent` when the spec is final for agents)
+- `complexity` (`Trivial` | `Standard` | `Complex` | `Architectural` — match template casing)
+- `owner`
+- Relation edges (arrays; may be empty): `publishes`, `consumes`, `impacts`, `depends_on`
+
+## Tags vs typed edges
+
+- **Tags = filters only** (`repo:<service>`, `domain:<context>` required when Ready-For-Agent; free-form extras like `kafka` allowed). Tags create weak `TAGGED_WITH` edges — never treat them as `DEPENDS_ON` / `IMPACTS`.
+- **Typed frontmatter = graph edges**: `publishes` / `consumes` (contract IDs like `event:OrderCancelled@v1`), `impacts` (`repo:billing#feature`), `depends_on` (`TSK-…`).
+- **Publish-before-consume**: Draft / In-Review orphan `consumes` → warning. Ready-For-Agent / Done orphan `consumes` → **reject** unless prefixed `external:`.
+
+## Required body sections (in order)
+
+1. `# Specification: …`
+2. `## … (Mission & Guardrails)` — Goal, Allowed Scope, Protected Scope, Non-Goals
+3. `## … (Existing Utilities)` — shared modules/APIs the agent must reuse
+4. `## … (Data Contracts)` — TypeScript interfaces or JSON Schema in a fenced code block
+5. `## … (Acceptance Criteria)` — Gherkin scenarios with **Scenario** / **Given** / **When** / **Then**
+6. `## … (Verification & Test Guardrails)` — lint/test commands and coverage threshold
+
+Bilingual Persian/English headings matching `AGENT_SPEC.md` are preferred. English-only headings from `SPEC.md` §4 are acceptable if they contain the same section keywords.
+
+## Do not
+
+- Invent free-form wiki prose instead of this structure
+- Omit blast-radius fields (Allowed / Protected / Non-Goals)
+- Ship specs without at least one Gherkin acceptance scenario
+- Change frontmatter field names
+- Promote Ready-For-Agent while consuming a contract nothing publishes (unless `external:`)
+- Place Ready-For-Agent pages at Book root without a Chapter (module)
+- Create a Chapter or Page without updating the parent Master **Index**
+
+Validate drafts against `@spec-hub/shared-schemas` (`AgentSpecDocumentSchema` / `parseAgentSpecMarkdown`) and `@spec-hub/codex-gate` (`assertConsumesResolved`, `assertHierarchyPlacement`) when available.

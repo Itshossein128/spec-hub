@@ -1,7 +1,7 @@
-# AgentDoc Bridge: Multi-Agent Software Documentation & Context Hub
+# Spec Hub: Multi-Agent Software Documentation & Context Hub
 
 > **Architecture, Specification & Implementation Blueprint**  
-> *Target Stack: Next.js (App Router) / TypeScript / MCP Server / BookStack API / Codex CLI*
+> _Target Stack: Next.js (App Router) / TypeScript / MCP Server / BookStack API / Codex CLI_
 
 ---
 
@@ -9,7 +9,7 @@
 
 This project addresses a critical failure mode in software engineering multi-agent systems: **context ambiguity and untyped documentation**. Developer worker agents often fail or hallucinate when documentation in wiki systems (like BookStack) is unstructured, lacks explicit blast-radius boundaries, or contains open-ended natural language descriptions.
 
-**AgentDoc Bridge** is an end-to-end platform comprising:
+**Spec Hub** is an end-to-end platform comprising:
 
 1. **Developer Portal (Web App):** A structured form enforcing granular inputs (Shelf, Book, Tags, User Story, Blast Radius, Contracts, and Gherkin-style Acceptance Criteria).
 2. **Analysis & Refinement Engine (Codex / LLM Gateway):** An automated gate that analyzes the raw specification, detects ambiguities, validates invariants, and refines the draft into an "Agent-Ready Specification".
@@ -67,7 +67,7 @@ The frontend enforces strict data typing using Zod before any agent pipeline is 
 
 ```typescript
 // schemas/specFormSchema.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 export const SpecFormSchema = z.object({
   shelfId: z.number().int().positive(),
@@ -75,31 +75,35 @@ export const SpecFormSchema = z.object({
   chapterId: z.number().int().optional(),
   title: z.string().min(5).max(120),
   tags: z.array(z.string()).min(1),
-  taskType: z.enum(['FEATURE', 'BUGFIX', 'REFACTOR', 'MIGRATION']),
-  complexity: z.enum(['TRIVIAL', 'STANDARD', 'COMPLEX', 'ARCHITECTURAL']),
-  owner: z.string().default('Lead Engineer'),
+  taskType: z.enum(["FEATURE", "BUGFIX", "REFACTOR", "MIGRATION"]),
+  complexity: z.enum(["TRIVIAL", "STANDARD", "COMPLEX", "ARCHITECTURAL"]),
+  owner: z.string().default("Lead Engineer"),
 
   // High-value Agent Guardrails
-  mission: z.string().min(20, 'Goal description must be clear and concise'),
-  allowedPaths: z.array(z.string()).min(1, 'At least one target path required'),
+  mission: z.string().min(20, "Goal description must be clear and concise"),
+  allowedPaths: z.array(z.string()).min(1, "At least one target path required"),
   protectedPaths: z.array(z.string()).default([]),
-  nonGoals: z.array(z.string()).min(1, 'Define explicit out-of-scope boundaries'),
+  nonGoals: z
+    .array(z.string())
+    .min(1, "Define explicit out-of-scope boundaries"),
 
   // Contracts & Scenarios
   existingDependencies: z.array(z.string()).default([]),
   dataContracts: z.string().optional(), // Typescript Interfaces or JSON Schema
-  acceptanceCriteria: z.array(
-    z.object({
-      scenario: z.string(),
-      given: z.string(),
-      when: z.string(),
-      then: z.string(),
-    })
-  ).min(1, 'At least one Gherkin scenario is required'),
+  acceptanceCriteria: z
+    .array(
+      z.object({
+        scenario: z.string(),
+        given: z.string(),
+        when: z.string(),
+        then: z.string(),
+      }),
+    )
+    .min(1, "At least one Gherkin scenario is required"),
 
   verificationCommands: z.object({
-    lint: z.string().default('pnpm lint'),
-    test: z.string().default('pnpm test'),
+    lint: z.string().default("pnpm lint"),
+    test: z.string().default("pnpm test"),
     coverageThreshold: z.number().min(0).max(100).default(80),
   }),
 });
@@ -174,22 +178,25 @@ owner: "Lead Engineer"
 # Specification: [Task Name]
 
 ## 1. Mission & Guardrails
-* **Goal:** Implement an idempotent event processor for Kafka webhook ingestion.
-* **Allowed Scope:**
-  * `src/modules/events/consumers/`
-  * `src/database/migrations/`
-* **Protected Scope (DO NOT TOUCH):**
-  * `src/core/auth/`
-  * `src/config/env.ts`
-* **Non-Goals:**
-  * Do not introduce new queue engines (e.g. RabbitMQ).
-  * Do not modify the existing schema for user entities.
+
+- **Goal:** Implement an idempotent event processor for Kafka webhook ingestion.
+- **Allowed Scope:**
+  - `src/modules/events/consumers/`
+  - `src/database/migrations/`
+- **Protected Scope (DO NOT TOUCH):**
+  - `src/core/auth/`
+  - `src/config/env.ts`
+- **Non-Goals:**
+  - Do not introduce new queue engines (e.g. RabbitMQ).
+  - Do not modify the existing schema for user entities.
 
 ## 2. Existing Utilities & Context
-* `src/shared/redis/lock.service.ts` -> Use `acquireLock(key, ttl)` for distributed locking.
-* `src/shared/logger/index.ts` -> Use structured logger `appLogger.child({ module: 'event' })`.
+
+- `src/shared/redis/lock.service.ts` -> Use `acquireLock(key, ttl)` for distributed locking.
+- `src/shared/logger/index.ts` -> Use structured logger `appLogger.child({ module: 'event' })`.
 
 ## 3. Data Contracts
+
 ```typescript
 export interface IngestedEventDTO {
   id: string;
@@ -207,21 +214,21 @@ export interface ConsumerResultDTO {
 
 ## 4. Acceptance Criteria (Gherkin)
 
-* **Scenario 1: Fresh Event Processing**
-* **Given** an unhandled event with ID `evt_101`
-* **When** consumer receives the payload
-* **Then** persist record to DB and return `ackToken` with HTTP 200 equivalent.
+- **Scenario 1: Fresh Event Processing**
+- **Given** an unhandled event with ID `evt_101`
+- **When** consumer receives the payload
+- **Then** persist record to DB and return `ackToken` with HTTP 200 equivalent.
 
-* **Scenario 2: Duplicate Event Replay**
-* **Given** an event with ID `evt_101` already present in Redis
-* **When** consumer receives duplicate payload
-* **Then** skip business execution and log warning without failing.
+- **Scenario 2: Duplicate Event Replay**
+- **Given** an event with ID `evt_101` already present in Redis
+- **When** consumer receives duplicate payload
+- **Then** skip business execution and log warning without failing.
 
 ## 5. Verification & Test Guardrails
 
-* `pnpm lint`
-* `pnpm test:unit src/modules/events/consumers/`
-* Minimum coverage requirement: 85%
+- `pnpm lint`
+- `pnpm test:unit src/modules/events/consumers/`
+- Minimum coverage requirement: 85%
 ````
 
 ---

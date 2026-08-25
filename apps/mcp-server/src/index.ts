@@ -5,7 +5,7 @@ import { registerResources } from "./resources/index.js";
 
 async function main() {
   const server = new McpServer({
-    name: "agentdoc-bookstack",
+    name: "spec-hub-bookstack",
     version: "0.1.0",
   });
 

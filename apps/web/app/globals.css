@@ -1,26 +1,75 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #e8eef2;
+  --foreground: #14212b;
+  --surface: #f7fafc;
+  --surface-elevated: #ffffff;
+  --accent: #0f6e56;
+  --accent-soft: #d8efe6;
+  --accent-ink: #0a4d3c;
+  --warn: #9a6700;
+  --warn-soft: #fff3cd;
+  --danger: #b42318;
+  --danger-soft: #fde8e6;
+  --muted: #5b6b76;
+  --border: #c5d0d8;
+  --grid: rgba(15, 110, 86, 0.06);
+  --font-display: var(--font-vazirmatn), "Tahoma", sans-serif;
+  --font-sans: var(--font-vazirmatn), "Tahoma", sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), ui-monospace, monospace;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-display: var(--font-display);
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(15, 110, 86, 0.12), transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, rgba(20, 33, 43, 0.08), transparent 50%),
+    linear-gradient(180deg, #eef3f6 0%, var(--background) 40%, #dfe8ee 100%);
+  background-attachment: fixed;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  min-height: 100%;
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.field {
+  @apply w-full rounded-md border border-border bg-surface-elevated px-3 py-2 text-sm text-foreground outline-none transition;
+  @apply focus:border-accent focus:ring-2 focus:ring-accent/20;
+}
+
+.field-label {
+  @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-muted;
+}
+
+.section-card {
+  @apply rounded-xl border border-border bg-surface-elevated/95 p-4 shadow-[0_1px_0_rgba(20,33,43,0.04)];
 }

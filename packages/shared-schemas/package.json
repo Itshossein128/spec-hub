@@ -1,5 +1,5 @@
 {
-  "name": "@agentdoc/shared-schemas",
+  "name": "@spec-hub/shared-schemas",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,8 +9,13 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./templates/AGENT_SPEC.md": "./templates/AGENT_SPEC.md"
   },
+  "files": [
+    "dist",
+    "templates"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch",

@@ -38,6 +38,10 @@ yarn-error.log*
 bookstack_app_data/
 bookstack_db_data/
 
+# Synced corpus + wiki graph outputs (regenerate via pnpm bookstack:sync / bookstack:graph)
+data/bookstack-corpus/
+graphify-out/bookstack/
+
 # vercel
 .vercel
 

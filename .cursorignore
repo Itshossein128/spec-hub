@@ -1,0 +1,37 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+
+# build / cache
+.next/
+out/
+build/
+dist/
+coverage/
+*.tsbuildinfo
+
+# env / secrets
+.env
+.env.*
+!.env.example
+
+# BookStack docker volumes
+bookstack_app_data/
+bookstack_db_data/
+
+# generated / tooling noise
+graphify-out/
+.vercel/
+*.pem
+.DS_Store
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# lockfile (large; keep package.json for deps)
+pnpm-lock.yaml

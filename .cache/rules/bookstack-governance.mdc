@@ -1,0 +1,41 @@
+---
+alwaysApply: true
+---
+
+# Role & Context
+
+You are configuring the "Codex Analysis & Refinement Engine" for our Multi-Agent Spec-Hub monorepo.
+Whenever Codex is invoked to analyze a developer's form submission or to write documentation into BookStack via the MCP server, it MUST strictly adhere to the following Structural Governance Rules.
+
+# BookStack Entity Mapping (Domain Driven Design)
+
+Our BookStack instance is not a generic wiki; it represents our exact microservice and application architecture. Codex must enforce this exact hierarchy:
+
+1. **Shelf (Macro Domain / Application):**
+   - Represents a Bounded Context or a large-scale Application (e.g., Fleet Management, Tracking System, HR).
+   - _Rule:_ Shelves only group Books. They do not contain granular code logic.
+
+2. **Book (Microservice / Micro-frontend):**
+   - Represents a distinct, deployable microservice or frontend app.
+   - _Rule:_ Each Book is a standalone Context Repository for a specific microservice.
+
+3. **Chapter (Module / Entity):**
+   - Represents a business entity or a logical module within a microservice (e.g., Driver, Vehicle, Hub, Infractions).
+   - _Rule:_ Chapters group related operational tasks and data contracts.
+
+4. **Page (Task / Agent-Ready Spec):**
+   - Represents the actual executable tasks, feature specifications, or human-curated definitions (e.g., "Create driver API", "Assign tracking device").
+   - _Rule:_ Pages must follow the `AGENT_SPEC.md` YAML frontmatter and Gherkin format.
+
+# Navigation & Knowledge Graph Invariants (The "Master Index" Rule)
+
+To prevent hallucination, minimize token consumption, and resolve entities accurately, Codex MUST NEVER leave a Book or Chapter without a human-readable and machine-readable navigation map.
+
+- **Mandatory Master Index:** Every Book and Chapter MUST have a root `Index.md` (Table of Contents) page.
+- **Behavioral Constraint:** When Codex creates a new Chapter or a new Page, it MUST simultaneously update the parent `Index.md` file to include a hyperlink and a one-sentence description of the newly created resource.
+- **Why this matters:** This creates "Human-curated links" which serve as the fundamental backbone for our Knowledge Graph and multi-agent retrieval system. It provides downstream agents with a clear navigation path, bypassing the need for expensive and error-prone semantic file searches.
+
+# Instructions for Cursor
+
+1. Integrate these rules into the validation schema (Zod) where possible (e.g., ensuring forms target the correct Shelf/Book/Chapter entities).
+2. Embed this text into the system prompt for the `codex-gate` package so that Codex acts as a strict enforcer of this hierarchy and the Master Index rule.

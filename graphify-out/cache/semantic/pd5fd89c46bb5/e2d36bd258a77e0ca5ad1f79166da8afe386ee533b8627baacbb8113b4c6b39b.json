@@ -1,0 +1,123 @@
+{
+  "nodes": [
+    {
+      "id": "spec_md_spec-hub_bridge",
+      "label": "Spec Hub Specification",
+      "file_type": "document",
+      "source_file": "SPEC.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "spec_md_developer_portal",
+      "label": "Developer Portal Web App",
+      "file_type": "concept",
+      "source_file": "SPEC.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "spec_md_refinement_engine",
+      "label": "Analysis & Refinement Engine",
+      "file_type": "concept",
+      "source_file": "SPEC.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "spec_md_mcp_bookstack_server",
+      "label": "MCP BookStack Server",
+      "file_type": "concept",
+      "source_file": "SPEC.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "spec_md_spec_form_schema",
+      "label": "SpecFormSchema Zod Validation",
+      "file_type": "rationale",
+      "source_file": "SPEC.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "spec_md_agent_ready_format",
+      "label": "Agent-Ready Document Format Standard",
+      "file_type": "concept",
+      "source_file": "SPEC.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "spec_md_spec-hub_bridge",
+      "target": "spec_md_developer_portal",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "spec_md_spec-hub_bridge",
+      "target": "spec_md_refinement_engine",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "spec_md_spec-hub_bridge",
+      "target": "spec_md_mcp_bookstack_server",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "spec_md_developer_portal",
+      "target": "spec_md_spec_form_schema",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "spec_md_refinement_engine",
+      "target": "spec_md_agent_ready_format",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SPEC.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

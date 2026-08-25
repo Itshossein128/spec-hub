@@ -1,5 +1,5 @@
 {
-  "name": "@agentdoc/web",
+  "name": "@spec-hub/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,10 +10,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@agentdoc/shared-schemas": "workspace:*",
+    "@spec-hub/codex-gate": "workspace:*",
+    "@spec-hub/shared-schemas": "workspace:*",
+    "@hookform/resolvers": "^5.9.1",
     "next": "16.3.3",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "react-hook-form": "^7.86.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
