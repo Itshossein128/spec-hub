@@ -67,7 +67,7 @@ function normalizeFindings(
       code,
       severity,
       message,
-      field: raw.field,
+      field: raw.field == null || raw.field === "" ? undefined : raw.field,
       source: "codex",
     });
   }
@@ -87,9 +87,46 @@ function normalizeFindings(
   };
 }
 
+function extractCodexError(stdout: string, stderr: string): string {
+  const blob = `${stderr}\n${stdout}`;
+  for (const line of blob.split("\n")) {
+    const t = line.trim();
+    if (!t.startsWith("{")) continue;
+    try {
+      const ev = JSON.parse(t) as {
+        type?: string;
+        message?: string;
+        error?: { message?: string };
+      };
+      if (ev.type === "error" && ev.message) {
+        // message may itself be a JSON string from the API
+        try {
+          const inner = JSON.parse(ev.message) as {
+            error?: { message?: string; code?: string };
+          };
+          const msg = inner.error?.message ?? ev.message;
+          const code = inner.error?.code;
+          return code ? `${code}: ${msg}` : msg;
+        } catch {
+          return ev.message.slice(0, 500);
+        }
+      }
+      if (ev.error?.message) return ev.error.message.slice(0, 500);
+    } catch {
+      // continue
+    }
+  }
+  const plain = (stderr.trim() || stdout.trim()).slice(0, 400);
+  return plain || "unknown Codex error";
+}
+
 function tryParseJson(text: string): CodexFindingsPayload | null {
   const trimmed = text.trim();
   if (!trimmed) return null;
+  // Ignore JSONL event streams (thread.started, turn.started, …)
+  if (trimmed.includes('"type":"thread.started"') || trimmed.includes('"type": "thread.started"')) {
+    return null;
+  }
   try {
     return JSON.parse(trimmed) as CodexFindingsPayload;
   } catch {
@@ -173,7 +210,6 @@ export async function runCodexSpecAudit(
       "exec",
       "-s",
       "read-only",
-      "--json",
       "--output-schema",
       schemaPath,
       "-o",
@@ -194,15 +230,12 @@ export async function runCodexSpecAudit(
     try {
       raw = await readFile(outFile, "utf8");
     } catch {
-      raw = result.stdout;
+      raw = "";
     }
 
     const parsed = tryParseJson(raw);
     if (!parsed) {
-      const detail =
-        result.stderr.trim().slice(0, 400) ||
-        result.stdout.trim().slice(0, 400) ||
-        `exit ${result.code}`;
+      const detail = extractCodexError(result.stdout, result.stderr);
       return {
         ok: false,
         findings: [
